@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Nina Norgren, Marcin Kierczak" />
+
+
+<title>Statistical analysis in genome-wide association studies</title>
+
+<script src="GWAS_Workshop_files/jquery-1.12.4/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="GWAS_Workshop_files/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="GWAS_Workshop_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="GWAS_Workshop_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="GWAS_Workshop_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="GWAS_Workshop_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="GWAS_Workshop_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="GWAS_Workshop_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="GWAS_Workshop_files/navigation-1.1/tabsets.js"></script>
+<script src="GWAS_Workshop_files/navigation-1.1/codefolding.js"></script>
+<link href="GWAS_Workshop_files/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="GWAS_Workshop_files/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="GWAS_Workshop_files/htmlwidgets-1.2/htmlwidgets.js"></script>
+<link href="GWAS_Workshop_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="GWAS_Workshop_files/datatables-binding-0.4/datatables.js"></script>
+<link href="GWAS_Workshop_files/dt-core-1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="GWAS_Workshop_files/dt-core-1.10.16/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="GWAS_Workshop_files/dt-core-1.10.16/js/jquery.dataTables.min.js"></script>
+<link href="GWAS_Workshop_files/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="GWAS_Workshop_files/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #f8f8f8; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+pre, code { background-color: #f8f8f8; }
+code > span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code > span.dt { color: #204a87; } /* DataType */
+code > span.dv { color: #0000cf; } /* DecVal */
+code > span.bn { color: #0000cf; } /* BaseN */
+code > span.fl { color: #0000cf; } /* Float */
+code > span.ch { color: #4e9a06; } /* Char */
+code > span.st { color: #4e9a06; } /* String */
+code > span.co { color: #8f5902; font-style: italic; } /* Comment */
+code > span.ot { color: #8f5902; } /* Other */
+code > span.al { color: #ef2929; } /* Alert */
+code > span.fu { color: #000000; } /* Function */
+code > span.er { color: #a40000; font-weight: bold; } /* Error */
+code > span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #000000; } /* Constant */
+code > span.sc { color: #000000; } /* SpecialChar */
+code > span.vs { color: #4e9a06; } /* VerbatimString */
+code > span.ss { color: #4e9a06; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #000000; } /* Variable */
+code > span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code > span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code > span.ex { } /* Extension */
+code > span.at { color: #c4a000; } /* Attribute */
+code > span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code > span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+div.sourceCode {
+  overflow-x: visible;
+}
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="assets\course.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Statistical analysis in genome-wide association studies</h1>
+<h3 class="subtitle"><em>An R and GenABEL-based tutorial</em></h3>
+<h4 class="author"><em>Nina Norgren, Marcin Kierczak</em></h4>
+<h4 class="date"><em>24-May-2018</em></h4>
+
+</div>
+
+
+<p><img src="assets/logo.svg" alt="logo_raukr" class="trlogo"></p>
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>A genome-wide association study (GWAS) is a genetic association study performed on a genome-wide scale. The primary aim of a GWAS is to identify the genetic markers, typically single nucleotide polymorphisms (SNP), that are statistically significantly associated with the studied trait, the latter being either continuous such as weight or binary such as healthy/sick. During this workshop we will use GenABEl, an R package specifically designed for GWAS analysis.</p>
+This protocol encompasses the analysis of a case-control study and contains the following steps:
+<li>
+Data preparation
+</li>
+<li>
+Quality control
+</li>
+<li>
+Outlier removal
+</li>
+<li>
+Stratification analysis and visualization
+</li>
+<li>
+Association analysis
+</li>
+<li>
+Interpretation of results
+</li>
+</div>
+<div id="dataset" class="section level1">
+<h1><span class="header-section-number">2</span> Dataset</h1>
+<p>Throughout this documentaiton we are using a simulated dataset based on the 1000Genome project. One binary trait (Let’s call it Disease X) has been simulated, using a total of 100 cases and 100 controls. In addition, a number of genotypes have been altered to introduce noise into the data, and gender information has been added.</p>
+</div>
+<div id="procedure" class="section level1">
+<h1><span class="header-section-number">3</span> Procedure</h1>
+<p>In this section we provide detailed discussion of a standard GWAS procedure.</p>
+<div id="preparing-the-working-environment" class="section level2">
+<h2><span class="header-section-number">3.1</span> Preparing the working environment</h2>
+<p>First, we need to prepare the working environment. To avoid typing long path names, we begin by setting our working directory using <tt>setwd()</tt> command. Next, we load GenABEL package using the <tt>library()</tt> command:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setwd</span>(<span class="st">&quot;C:/Users/Nina/Documents/courses/R_summer_school/GWAStutorial/GWAS_Workshop/&quot;</span>)
+<span class="kw">library</span>(GenABEL)</code></pre></div>
+</div>
+<div id="loading-data" class="section level2">
+<h2><span class="header-section-number">3.2</span> Loading data</h2>
+<p>Now, we are ready to load genotyping data. These may come in a multitude of formats and GenABEL can read all common formats used in GWAS. To this end, GenABEL provides a number of conversion functions that translate data from a given file format to the internal GenABEL data structure. This internal data structure is optimized for access-time and memory usage and stores the data in a binary-compressed format. All the conversion functions are named in a uniform fashion starting with <tt>convert</tt>. For instance, <tt>convert.snp.ped()</tt> is a function that translates data from a common <tt>.ped</tt> format to GenABEL data structure. The genotyping data, once converted, is stored in a special file, typically with <tt>.raw</tt> extension. Phenotypes are stored in another file, in the form of a table. For details on both formats, type <tt>?convert.snp.text()</tt> and <tt>?load.gwaa.data()</tt>. Data is loaded using the <tt>load.gwaa.data()</tt> function which has some useful parameters. Two of these parameters are commonly used: <tt>makemap</tt> and <tt>sort</tt>. The first one is useful when the original genetic map is chromosome-specific, i.e., when marker coordinates are related to the beginning of chromosome. When set to <tt>makemap=TRUE</tt>, the coordinates will be translated to genome-wide map. The latter is helpful in the cases where markers are not sorted according to their order on chromosomes. Set <tt>sort=TRUE</tt> to sort markers according to their genomic coordinates. Having the parameters set, we can proceed and load the data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Load data</span>
+genodata &lt;-<span class="st"> </span><span class="kw">load.gwaa.data</span>(
+            <span class="dt">phenofile =</span> <span class="st">&quot;data/phenotype.dat&quot;</span>, 
+            <span class="dt">genofile =</span> <span class="st">&quot;data/genotype.raw&quot;</span>, 
+            <span class="dt">makemap =</span> F, 
+            <span class="dt">sort =</span> F)</code></pre></div>
+</div>
+<div id="understanding-the-data-structure" class="section level2">
+<h2><span class="header-section-number">3.3</span> Understanding the data structure</h2>
+<p>As mentioned in the previous subsection, GenABEL stores genetic data in a specific internal format <tt>gwaa.data</tt>. It is important to understand the structure of this format and how to access its parts. At its highest level, <tt>gwaa.data</tt> is a class consisting of two so-called <i>slots</i>: one slot for genotype data and one for phenotype data. These slots can be accessed by <tt>gtdata()</tt> (or <tt>@gtdata</tt>) and <tt>phdata()</tt> (or <tt>@phdata</tt>) <i>selectors</i>. Note that the <tt>selector(mydata)</tt> and <tt>mydata@selector</tt> are equivalent forms of notation and throughout this document, we will use them interchangeably to achieve as clear and compact notation as possible. Now, the genotype data is, in turn, of <tt>snp.data-class</tt>, which means you can access a list of chromosomes by writing <tt>mydata@gtdata@chromosome</tt> or <tt>chromosome(gtdata(mydata))</tt> (or a combination of those two notations, e.g., <tt>chromosome(mydata@gtdata))</tt>. To learn about all the slots in the <tt>snp.data-class</tt>, simply type <tt>?snp.data-class</tt>. The phenotype data is stored in the form of a data frame which is simply a table where each row corresponds to an individual and every column contains values of a trait or a variable, e.g. age at sampling. In order to see names of all the traits/variables you can issue the <tt>names(mydata@phdata)</tt> command.</p>
+<p>Explore the above command and try them on the data, just be aware that especially the snp information is huge. Don’t hesitate to press the STOP button in the top-right corner of the terminal if the printed output gets too much.</p>
+</div>
+<div id="getting-an-overview-of-the-data" class="section level2">
+<h2><span class="header-section-number">3.4</span> Getting an overview of the data</h2>
+<p>Once the data are loaded, it is common the check some features of the dataset and learn more about variables. We begin by looking at the number of individuals and the number of markers in the data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get information about number of individuals</span>
+<span class="kw">nids</span>(genodata)</code></pre></div>
+<pre><code>## [1] 200</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Number of SNPs in the data</span>
+<span class="kw">nsnps</span>(genodata)</code></pre></div>
+<pre><code>## [1] 729048</code></pre>
+Once we are sure all the individuals we wanted have been successfully loaded and that the number of markers is as expected (e.g., as specified by SNP array manufacturer), it is time to learn how to examine particular markers and individuals. There is a special function <tt>summary()</tt> that returns a nice summary of most of the data structures in R, including GenABEL <tt>gwaa.data-class</tt>. Our genodata object of <tt>gwaa.data-class</tt> type contains information about genotypes and phenotypes. Let us start by examining genotypes. We will explicitly refer to the slots of <tt>genodata@gtdata</tt>. GenABEL provides a convenient way of subsetting the original data: markers and individuals can be accessed as if they were columns and rows of an ordinary data frame. Therefore calling <tt>genodata[i,j]</tt> will select the <i>i-th</i> individual and the <i>j-th</i> marker only. By requestion <tt>summary</tt> of the data you will find per marker information about:
+<li>
+chromosome
+</li>
+<li>
+map position
+</li>
+<li>
+strand (u for unknown)
+</li>
+<li>
+allele coding
+</li>
+<li>
+number of observed genotypes
+</li>
+<li>
+call rate
+</li>
+<li>
+allelic frequency
+</li>
+<li>
+genotypic distribution (counts)
+</li>
+<li>
+p-value of the exact test for HWE
+</li>
+<li>
+Fmax (estimate of deviation from HWE)
+</li>
+<li>
+LRT p-value for HWE test
+</li>
+<p>Get summary of the first 5 markers:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Summary of the first 2 markers</span>
+<span class="kw">summary</span>(genodata<span class="op">@</span>gtdata)[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, ]</code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Chromosome"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["Position"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Strand"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["A1"],"name":[4],"type":["fctr"],"align":["left"]},{"label":["A2"],"name":[5],"type":["fctr"],"align":["left"]},{"label":["NoMeasured"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["CallRate"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Q.2"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["P.11"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["P.12"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["P.22"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["Pexact"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["Fmax"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["Plrt"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"744045","3":"u","4":"G","5":"A","6":"196","7":"0.980","8":"0.1352041","9":"147","10":"45","11":"4","12":"0.7601218","13":"0.01820003","14":"0.8014563","_rn_":"rs3131969"},{"1":"1","2":"744197","3":"u","4":"G","5":"A","6":"198","7":"0.990","8":"0.1439394","9":"147","10":"45","11":"6","12":"0.2530227","13":"0.07778295","14":"0.2953515","_rn_":"rs3131967"},{"1":"1","2":"750775","3":"u","4":"C","5":"T","6":"198","7":"0.990","8":"0.1313131","9":"150","10":"44","11":"4","12":"0.7527822","13":"0.02593918","14":"0.7203233","_rn_":"rs1048488"},{"1":"1","2":"758311","3":"u","4":"T","5":"C","6":"197","7":"0.985","8":"0.1573604","9":"141","10":"50","11":"6","12":"0.5882956","13":"0.04294598","14":"0.5558450","_rn_":"rs12562034"},{"1":"1","2":"766409","3":"u","4":"G","5":"A","6":"199","7":"0.995","8":"0.1030151","9":"161","10":"35","11":"3","12":"0.4413793","13":"0.04830225","14":"0.5158616","_rn_":"rs12124819"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Using the fact that column “Q.2” contains minor allele frequency (MAF) for each marker, we can easily plot MAF for, say, first 500 markers on chromosome 4.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">chr4.idx &lt;-<span class="st"> </span><span class="kw">which</span>(genodata<span class="op">@</span>gtdata<span class="op">@</span>chromosome <span class="op">==</span><span class="st"> </span><span class="dv">4</span>)
+maf &lt;-<span class="st"> </span><span class="kw">summary</span>(genodata<span class="op">@</span>gtdata)[chr4.idx[<span class="dv">1</span><span class="op">:</span><span class="dv">500</span>],<span class="st">&quot;Q.2&quot;</span>]
+<span class="kw">plot</span>(maf, <span class="dt">type =</span> <span class="st">&#39;l&#39;</span>, <span class="dt">main=</span><span class="st">&quot;MAF on chr 4&quot;</span>, 
+     <span class="dt">xlab =</span> <span class="st">&quot;marker&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;MAF&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;slateblue&quot;</span>)</code></pre></div>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>In a way similar to getting summary for genotype data, one can look at the phenotypes and other variables characterizing individuals. This is done as simply as issuing the <tt>summary</tt> command on the data frame containing phenotype information:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Summary of phenotypes</span>
+<span class="kw">summary</span>(genodata<span class="op">@</span>phdata)</code></pre></div>
+<pre><code>##       id                 sex            pheno    
+##  Length:200         Min.   :0.000   Min.   :0.0  
+##  Class :character   1st Qu.:0.000   1st Qu.:0.0  
+##  Mode  :character   Median :1.000   Median :0.5  
+##                     Mean   :0.535   Mean   :0.5  
+##                     3rd Qu.:1.000   3rd Qu.:1.0  
+##                     Max.   :1.000   Max.   :1.0</code></pre>
+<p>As a result, R provides descriptive statistics per each trait. NOTE: Since R is assuming continuous nature of each variable, summary for binary traits like case/control or any variable taking discrete values is not helpful. However, if you want to view a table of your phenotypes, you can use the following, which will result in a searchable table:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Make a table with all phenotypes per individual</span>
+<span class="kw">library</span>(DT)
+<span class="kw">datatable</span>(genodata<span class="op">@</span>phdata,<span class="dt">options=</span><span class="kw">list</span>(<span class="dt">pageLength=</span><span class="dv">5</span>))</code></pre></div>
+<div id="htmlwidget-4b83363e8d79dda867bc" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4b83363e8d79dda867bc">{"x":{"filter":"none","data":[["id2_0","id2_1","id2_2","id2_3","id2_4","id2_5","id2_6","id2_7","id2_8","id2_9","id2_10","id2_11","id2_12","id2_13","id2_14","id2_15","id2_16","id2_17","id2_18","id2_19","id2_20","id2_21","id2_22","id2_23","id2_24","id2_25","id2_26","id2_27","id2_28","id2_29","id2_30","id2_31","id2_32","id2_33","id2_34","id2_35","id2_36","id2_37","id2_38","id2_39","id2_40","id2_41","id2_42","id2_43","id2_44","id2_45","id2_46","id2_47","id2_48","id2_49","id2_50","id2_51","id2_52","id2_53","id2_54","id2_55","id2_56","id2_57","id2_58","id2_59","id2_60","id2_61","id2_62","id2_63","id2_64","id2_65","id2_66","id2_67","id2_68","id2_69","id2_70","id2_71","id2_72","id2_73","id2_74","id2_75","id2_76","id2_77","id2_78","id2_79","id2_80","id2_81","id2_82","id2_83","id2_84","id2_85","id2_86","id2_87","id2_88","id2_89","id2_90","id2_91","id2_92","id2_93","id2_94","id2_95","id2_96","id2_97","id2_98","id2_99","id2_100","id2_101","id2_102","id2_103","id2_104","id2_105","id2_106","id2_107","id2_108","id2_109","id2_110","id2_111","id2_112","id2_113","id2_114","id2_115","id2_116","id2_117","id2_118","id2_119","id2_120","id2_121","id2_122","id2_123","id2_124","id2_125","id2_126","id2_127","id2_128","id2_129","id2_130","id2_131","id2_132","id2_133","id2_134","id2_135","id2_136","id2_137","id2_138","id2_139","id2_140","id2_141","id2_142","id2_143","id2_144","id2_145","id2_146","id2_147","id2_148","id2_149","id2_150","id2_151","id2_152","id2_153","id2_154","id2_155","id2_156","id2_157","id2_158","id2_159","id2_160","id2_161","id2_162","id2_163","id2_164","id2_165","id2_166","id2_167","id2_168","id2_169","id2_170","id2_171","id2_172","id2_173","id2_174","id2_175","id2_176","id2_177","id2_178","id2_179","id2_180","id2_181","id2_182","id2_183","id2_184","id2_185","id2_186","id2_187","id2_188","id2_189","id2_190","id2_191","id2_192","id2_193","id2_194","id2_195","id2_196","id2_197","id2_198","id2_199"],["id2_0","id2_1","id2_2","id2_3","id2_4","id2_5","id2_6","id2_7","id2_8","id2_9","id2_10","id2_11","id2_12","id2_13","id2_14","id2_15","id2_16","id2_17","id2_18","id2_19","id2_20","id2_21","id2_22","id2_23","id2_24","id2_25","id2_26","id2_27","id2_28","id2_29","id2_30","id2_31","id2_32","id2_33","id2_34","id2_35","id2_36","id2_37","id2_38","id2_39","id2_40","id2_41","id2_42","id2_43","id2_44","id2_45","id2_46","id2_47","id2_48","id2_49","id2_50","id2_51","id2_52","id2_53","id2_54","id2_55","id2_56","id2_57","id2_58","id2_59","id2_60","id2_61","id2_62","id2_63","id2_64","id2_65","id2_66","id2_67","id2_68","id2_69","id2_70","id2_71","id2_72","id2_73","id2_74","id2_75","id2_76","id2_77","id2_78","id2_79","id2_80","id2_81","id2_82","id2_83","id2_84","id2_85","id2_86","id2_87","id2_88","id2_89","id2_90","id2_91","id2_92","id2_93","id2_94","id2_95","id2_96","id2_97","id2_98","id2_99","id2_100","id2_101","id2_102","id2_103","id2_104","id2_105","id2_106","id2_107","id2_108","id2_109","id2_110","id2_111","id2_112","id2_113","id2_114","id2_115","id2_116","id2_117","id2_118","id2_119","id2_120","id2_121","id2_122","id2_123","id2_124","id2_125","id2_126","id2_127","id2_128","id2_129","id2_130","id2_131","id2_132","id2_133","id2_134","id2_135","id2_136","id2_137","id2_138","id2_139","id2_140","id2_141","id2_142","id2_143","id2_144","id2_145","id2_146","id2_147","id2_148","id2_149","id2_150","id2_151","id2_152","id2_153","id2_154","id2_155","id2_156","id2_157","id2_158","id2_159","id2_160","id2_161","id2_162","id2_163","id2_164","id2_165","id2_166","id2_167","id2_168","id2_169","id2_170","id2_171","id2_172","id2_173","id2_174","id2_175","id2_176","id2_177","id2_178","id2_179","id2_180","id2_181","id2_182","id2_183","id2_184","id2_185","id2_186","id2_187","id2_188","id2_189","id2_190","id2_191","id2_192","id2_193","id2_194","id2_195","id2_196","id2_197","id2_198","id2_199"],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>id<\/th>\n      <th>sex<\/th>\n      <th>pheno<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":[2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="analyses-of-phenotypes" class="section level2">
+<h2><span class="header-section-number">3.5</span> Analyses of phenotypes</h2>
+<p>One of the first steps in the analyses is to identify potential dependencies between traits/variables as they should be taken into account when testing for accociations, e.g. males and females. To do this we use a Fisher’s exact test to test for association between sex and case control status.</p>
+<p>TECHNICAL NOTE: We used <tt>attach(phdata(genodata))</tt> to simplify notation. Now all the names within the <tt>genodata@phdata</tt> data frame can be referred just by their name, not by referring to the whole object, e.g., <tt>ab</tt> instead of <tt>genodata@phdata$ab</tt>. This is convenient, but in order to avoid confusion, remember to detach these names when you do not need them. We will do this later by writing <tt>detach(genodata@phdata)</tt>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">attach</span>(<span class="kw">phdata</span>(genodata))
+<span class="co">#Binary trait analysis</span>
+tab &lt;-<span class="st"> </span><span class="kw">table</span>(pheno, sex)
+<span class="kw">rownames</span>(tab) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;control&quot;</span>,<span class="st">&quot;case&quot;</span>)
+<span class="kw">colnames</span>(tab) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;male&quot;</span>,<span class="st">&quot;female&quot;</span>)
+tab</code></pre></div>
+<pre><code>##          sex
+## pheno     male female
+##   control   43     57
+##   case      50     50</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fisher.test</span>(tab)
+<span class="kw">detach</span>(<span class="kw">phdata</span>(genodata))</code></pre></div>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  tab
+## p-value = 0.395
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.4159816 1.3672058
+## sample estimates:
+## odds ratio 
+##  0.7554638</code></pre>
+<p>Sex does not seem to be associated to case/control status. Now, we can continue with the quality control of the data.</p>
+</div>
+<div id="quality-control" class="section level2">
+<h2><span class="header-section-number">3.6</span> Quality control</h2>
+<p>Quality control is one of the most crucial steps of the data analysis procedure. Be aware that any mistakes made at this step propagate and can seriously affect the results. Be careful! Quality control aims at removing poorly genotyped individuals and markers, markers that show large deviation from Hardy Weinberg equilibrium, markers with very low minor allele frequency and the individuals that are genetically too similar. In GenABEL, quality control is implemented in a convenient-to-use function <tt>check.marker()</tt>. The <tt>check.marker()</tt> function is implemented in an iterative manner: when, say, certain individuals are removed from the dataset due to low call rate, the size of the sample population changes and parameters like minor allele frequency have to be recalculated. The <tt>check.marker()</tt> function repeats data filtering until no further markers or individuals need to be removed. Typically, quality control takes two-three iterations of the <tt>check.marker()</tt> function. A typical call of <tt>check.marker()</tt> looks like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qc0 &lt;-<span class="st"> </span><span class="kw">check.marker</span>(genodata, <span class="dt">call =</span> <span class="fl">0.95</span>, <span class="dt">perid.call =</span> <span class="fl">0.95</span>, 
+                    <span class="dt">maf =</span> <span class="fl">1e-08</span>, <span class="dt">p.lev =</span> <span class="fl">1e-05</span>, 
+                    <span class="dt">hweidsubset =</span> genodata<span class="op">@</span>phdata<span class="op">$</span>pheno <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)</code></pre></div>
+<pre><code>## Excluding people/markers with extremely low call rate...
+## 729048 markers and 200 people in total
+## 0 people excluded because of call rate &lt; 0.1 
+## 0 markers excluded because of call rate &lt; 0.1 
+## Passed: 729048 markers and 200 people
+## 
+## RUN 1 
+## 729048 markers and 200 people in total
+## 0 (0%) markers excluded as having low (&lt;1e-06%) minor allele frequency
+## 934 (0.1281123%) markers excluded because of low (&lt;95%) call rate
+## 8 (0.001097321%) markers excluded because they are out of HWE (P &lt;1e-05)
+## 3 (1.5%) people excluded because of low (&lt;95%) call rate
+## Mean autosomal HET is 0.2990273 (s.e. 0.005555419)
+## 0 people excluded because too high autosomal heterozygosity (FDR &lt;1%)
+## Mean IBS is 0.7463368 (s.e. 0.007302501), as based on 2000 autosomal markers
+## 0 (0%) people excluded because of too high IBS (&gt;=0.95)
+## In total, 728106 (99.87079%) markers passed all criteria
+## In total, 197 (98.5%) people passed all criteria
+## 
+## RUN 2 
+## 728106 markers and 197 people in total
+## 223 (0.03062741%) markers excluded as having low (&lt;1e-06%) minor allele frequency
+## 105 (0.01442098%) markers excluded because of low (&lt;95%) call rate
+## 1 (0.0001373426%) markers excluded because they are out of HWE (P &lt;1e-05)
+## 0 (0%) people excluded because of low (&lt;95%) call rate
+## Mean autosomal HET is 0.2990772 (s.e. 0.005581424)
+## 0 people excluded because too high autosomal heterozygosity (FDR &lt;1%)
+## Mean IBS is 0.7516317 (s.e. 0.006968945), as based on 2000 autosomal markers
+## 0 (0%) people excluded because of too high IBS (&gt;=0.95)
+## In total, 727777 (99.95481%) markers passed all criteria
+## In total, 197 (100%) people passed all criteria
+## 
+## RUN 3 
+## 727777 markers and 197 people in total
+## 0 (0%) markers excluded as having low (&lt;1e-06%) minor allele frequency
+## 0 (0%) markers excluded because of low (&lt;95%) call rate
+## 0 (0%) markers excluded because they are out of HWE (P &lt;1e-05)
+## 0 (0%) people excluded because of low (&lt;95%) call rate
+## Mean autosomal HET is 0.2990772 (s.e. 0.005581424)
+## 0 people excluded because too high autosomal heterozygosity (FDR &lt;1%)
+## Mean IBS is 0.7512698 (s.e. 0.007531951), as based on 2000 autosomal markers
+## 0 (0%) people excluded because of too high IBS (&gt;=0.95)
+## In total, 727777 (100%) markers passed all criteria
+## In total, 197 (100%) people passed all criteria</code></pre>
+<p>It is important to fully understand all the parameters of the function and to adjust them according to the type of analyzed data, studied organism, purpose of the study etc. Below we provide a brief discussion of the most relevant parameters, for further information, refer to the function manual by typing <tt>?check.marker()</tt>:</p>
+<ul>
+<li><p>Poorly genotyped markers are defined in terms of call rate. Setting threshold callrate = 0.95, results in filtering out the markers that have missing genotype in 5% or more individuals. The 0.95 threshold is a reasonable value in most cases, but it is important to remember that it is specific to genotyping technology, version of array etc. Therefore always refer to manufacturer’s guidelines when in doubt.</p></li>
+<li><p>Similarly to poorly genotyped markers, also the poorly genotyped individuals can be filtered out. Setting perid.call=0.95 will result in filtering out the individuals with 5% or more missing genotypes. Likewise in the previous point, values of 0.95 or even 0.98 are usually appropriate but when in doubt, consult appropriate manuals and guidelines of the genotyping array manufacturer.</p></li>
+<li><p>By default, markers and individuals with extremely low call rate (10%) are dropped prior to the iterative quality control. These thresholds are set by extra.call and extra.perid.call parameters but in the vast majority of analyses they should be left at their default levels.</p></li>
+<li><p>Individuals showing abnormally high level of heterozygosity are filtered out using the het.fdr threshold. Departure from expected heterozygosity is measured and the threshold is defined in terms of false discovery rate (FDR). At the default level het.fdr = 0.01, one accepts that 1% of the individuals filtered out due to unacceptably high heterozygosity may not in fact be true outliers.</p></li>
+<li><p>In many data analysis scenarios, removal of genetically identical or too similar individuals is an important part of the quality control procedure. Redundancy and high correlation in the data can result in an overly inflation of the results. Therefore, too similar individuals should be identified and either removed or treated with care. Roughly, the genetic similarity between a pair of individuals is measured by the number of loci at which these individuals differ. The degree of similarity is expressed in terms of average identity-by-state (IBS). <tt>ibs.threshold</tt> parameter sets a cut-off value for the degree of similarity between any pair of individuals. Unless using experimental design with very related individuals, the default value of <tt>ibs.threshold = 0.95</tt> should be used which assures that individuals with genomic similarity of 95% or more will be treated as too related. This would assure that all potential duplicates are removed, as well as any potential monozygotic twins. Later on we will also remove first and second degree relatives. Computing IBS on the basis of all available markers would be computationally very demanding, therefore the actual IBS computations are based on a randomly selected subset of all markers. Typically the default 2000 markers should be more than enough, but if required, this value can be changed by setting <tt>ibs.mrk parameter</tt>. To turn off IBS checks set <tt>ibs.mrk = -1</tt> and to use all markers set <tt>ibs.mrk = “all”</tt>. When IBS exceeds the <tt>ibs.threshold</tt>, either both individuals <tt>ibs.exclude = “both”</tt> can be removed from the dataset or only the one with lower call rate <tt>ibs.exclude = “lower”</tt>. One can also decide to keep both <tt>ibs.exclude = “none”</tt>. It is recommended to use none of the first two options.</p></li>
+<li><p>The maf parameter is controlling cut-off value for removing markers with low minor allele frequency (MAF). In a typical GWAS study, it is customary to set MAF threshold to 5% or even 1% (<tt>maf = .05</tt> or <tt>maf = 0.01</tt> respectively). At the preliminary quality control step one may be willing to remove the non-informative (monomorphic) markers only which can be accomplished by setting <tt>maf = 1e-06</tt>.</p></li>
+<li><p>Markers can be filtered out based on the degree of departure from HardyWeinberg equilibrium (HWE). Departure from HWE is tested using goodness-of-fit <span class="math inline">\(\chi^2\)</span> test. By default, parameter p.level sets the cut-off value in terms of p-value; when is set to a negative value, e.g. p.value = -1, FDR-based cut-off specified by the fdrate parameter is used. While strong departures from HWE may be due to a systematic genotyping error, in certain scenarios it is important to allow for higher departures from HWE in a subset of individuals. Case-control is a good example of such set-up - a departure from HWE at a disease locus may, under certain conditions be expected in cases. Due to this it is most common to only use controls when testing for deviation from HWE. It is possible to specify the subset of individuals to be tested for departures from HWE using the hweidsubset parameter (specify individuals by either their names, indices or using a logical vector). The most commonly used threshold for HWE are p &lt; 1e-6 or p &lt; 1e-8.</p></li>
+<li><p>There is more parameters of the <tt>check.marker()</tt> function that allow for precise control of the quality control process, in particular for sexchromosome checks, redundancy-checks and heterozygosity-checks. As these parameters do not have to be set in a typical analysis, we skip the detailed discussion and send the reader to the GenABEL documentation.</p></li>
+</ul>
+</div>
+<div id="on-interpreting-the-quality-control-results" class="section level2">
+<h2><span class="header-section-number">3.7</span> On interpreting the quality control results</h2>
+<p>Now the preliminary quality control is completed. Please observe that at each round of the iterative process, some markers and individuals were excluded based on the criteria we set. A comprehensive overview of the outcome can be easily produced:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(qc0)</code></pre></div>
+<pre><code>## $`Per-SNP fails statistics`
+##           NoCall NoMAF NoHWE Redundant Xsnpfail
+## NoCall      1039     0     0         0        0
+## NoMAF         NA   223     0         0        0
+## NoHWE         NA    NA     9         0        0
+## Redundant     NA    NA    NA         0        0
+## Xsnpfail      NA    NA    NA        NA        0
+## 
+## $`Per-person fails statistics`
+##             IDnoCall HetFail IBSFail isfemale ismale isXXY otherSexErr
+## IDnoCall           3       0       0        0      0     0           0
+## HetFail           NA       0       0        0      0     0           0
+## IBSFail           NA      NA       0        0      0     0           0
+## isfemale          NA      NA      NA        0      0     0           0
+## ismale            NA      NA      NA       NA      0     0           0
+## isXXY             NA      NA      NA       NA     NA     0           0
+## otherSexErr       NA      NA      NA       NA     NA    NA           0</code></pre>
+<p>We can see that, for instance, 223 markers were excluded due to being monomorphic in our data, and 1039 markers were excluded due to too low call rate. There is no rule of thumb as to how many markers and individuals should pass quality control, it depends on species, genotyping technology used, and experimental design. It is up to the researcher to decide whether the observed data quality is satisfactory to carry on further analyses. In our analysis we can also see that 3 individuals were excluded due to too many missing calls. The reasons why this happens could be many; DNA quality migth not be good enough, they might come from genotyping chips that were suboptimal, reagents were old, or there may be a batch effect caused by something in the genotyping process. Always try to investigate why the samples failed before removing them.</p>
+<p>Once the quality control is completed, the results are stored in a special object of <tt>check.marker-class</tt> class. If you need to know which particular markers of individuals were excluded due to a given reason, you can get this information by accessing appropriate slots of the object stored in the <tt>qc0</tt> variable. More information on the structure of the object can be obtained by typing <tt>?check.marker-class</tt>. Running the <tt>check.marker</tt> only points out the problems but does not alter the actual data. Once the problematic markers and individuals are identified, they can be removed from the dataset:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">genodata.qc0 &lt;-<span class="st"> </span>genodata[qc0<span class="op">$</span>idok, qc0<span class="op">$</span>snpok]</code></pre></div>
+</div>
+<div id="detection-and-analyses-of-population-stratification" class="section level2">
+<h2><span class="header-section-number">3.8</span> Detection and analyses of population stratification</h2>
+<p>After preliminary quality control, it is time to examine structure of the analysed population, detect potential genetic outliers and look at the degree of relatedness between individuals. The first step is to create a genomic kinship matrix - a <i><span class="math inline">\(\sf{N_{i}nd x N{i}_ind}\)</span></i> matrix which reflects the degree of genetic similiarity between an pair from <span class="math inline">\(\sf{N_{i}nd}\)</span> individuals.</p>
+<p><b>NOTE:</b> To avoid unwanted bias, computation of the genomics kinship matrix should be based on the autosomal markers only. When working with human data, the <tt>autosomal(genodata.qc0)</tt> function can be used to retrieve the names of all autosomal markers. When working with other species, it is the user who has to define the subset of autosomal markers based on chromosome number. As our dataset is simulated using the 1000G data, we don’t have any sex chromosomes present in the data, but for future reference we will still perform the selection of autosomal markers first:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">autosomalMarkerNames &lt;-<span class="st"> </span><span class="kw">autosomal</span>(genodata.qc0)
+<span class="co"># Compute genomic kinship matrix</span>
+genodata.qc0.gkin &lt;-<span class="st"> </span><span class="kw">ibs</span>(genodata.qc0[, autosomalMarkerNames], <span class="dt">weight =</span> <span class="st">&quot;freq&quot;</span>)
+<span class="co"># Transform it to a distance matrix</span>
+genodata.qc0.dist &lt;-<span class="st"> </span><span class="kw">as.dist</span>(<span class="fl">0.5</span> <span class="op">-</span><span class="st"> </span>genodata.qc0.gkin)
+<span class="co"># Perform multidimensional scaling to display individuals on a 2D</span>
+genodata.qc0.pcs  &lt;-<span class="st"> </span><span class="kw">cmdscale</span>(genodata.qc0.dist, <span class="dt">k=</span><span class="dv">10</span>)
+<span class="co"># Label the samples according to case control status</span>
+genodata.qc0.pcs &lt;-<span class="st"> </span><span class="kw">cbind</span>(genodata.qc0.pcs, genodata.qc0<span class="op">@</span>phdata<span class="op">$</span>pheno)
+<span class="co"># Plot the result</span>
+{<span class="kw">plot</span>(<span class="dt">x=</span>genodata.qc0.pcs[, <span class="dv">1</span>], <span class="dt">y=</span>genodata.qc0.pcs[, <span class="dv">2</span>], <span class="dt">xlab =</span> <span class="st">&quot;PC 1&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;PC 2&quot;</span>,
+      <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;grey&quot;</span>,<span class="st">&quot;slateblue&quot;</span>)[<span class="kw">as.factor</span>(genodata.qc0.pcs[, <span class="dv">11</span>])], <span class="dt">main =</span> <span class="st">&quot;Genomic kinship&quot;</span>)
+<span class="kw">legend</span>(<span class="dt">x=</span><span class="fl">0.06</span>,<span class="dt">y=</span><span class="fl">0.09</span>,<span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;control&quot;</span>,<span class="st">&quot;case&quot;</span>),
+       <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;grey&quot;</span>,<span class="st">&quot;slateblue&quot;</span>),<span class="dt">pch=</span><span class="dv">19</span>)}</code></pre></div>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>The plot shows a two-dimensional visualization of the computed genomic-kinship matrix where every individual is represented as a point. Here we can see Principal Components (PCs) 1 versus 2, but make sure to also study other PCs for outliers. When studying the plots, look for any samples that does not cluster with the others, and study how well cases and controls overlap. Having outliers in your data, and an unbalanced case control population will cause stratification issues in your analysis. This might lead to inflation and possible false positive results. That is why it is important to identify and remove outliers, and correct for stratification issues. Once you have identified outliers, remove them using the <tt>identify</tt> function. Use <tt>?identify</tt> to read more about how it works. In this data we don’t have any obvious outliers, so we will not remove any samples.</p>
+<p>In our initial QC we computed IBS and removed any duplicate samples. However, to avoid inflation in our results, in most association studies it is important to remove samples that are too closely related. The most common approach is to remove one sample in a pair that is more closely related then second degree relatives. To test for relatedness we will use the <tt>findRelatives</tt> function, and specify it to look for any relations up to 4 meosis apart (3 meosis apart corresponds to second degree relatives). Before doing this, we will randomly select 5,000 markers to run the test on, as we don’t want too many markers that are in linkage disequillibrium (LD):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Subsample 5,000 SNPs that will be used for analysis</span>
+genodata.qc0.sub &lt;-<span class="st"> </span>genodata.qc0[,<span class="kw">sort</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nsnps</span>(genodata.qc0),<span class="dv">5000</span>))]
+<span class="co"># Extract allele frequencies</span>
+eaf &lt;-<span class="st"> </span><span class="kw">summary</span>(<span class="kw">gtdata</span>(genodata.qc0.sub))<span class="op">$</span><span class="st">&quot;Q.2&quot;</span>
+<span class="co"># Find relatives</span>
+relInfo &lt;-<span class="st"> </span><span class="kw">findRelatives</span>(genodata.qc0.sub,<span class="dt">q=</span>eaf,<span class="dt">gkinCutOff=</span><span class="op">-</span><span class="dv">1</span>,<span class="dt">nmeivec=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Summarize the guesses made by the function</span>
+<span class="kw">summary</span>(relInfo<span class="op">$</span>compressedGuess)</code></pre></div>
+<pre><code>## &lt; table of extent 0 x 0 &gt;</code></pre>
+<p>These results displaying an empty table indicates that we have no pairs of samples that are closer than 4 meiosis apart. As we had no obvious outliers from the PCA analysis in the previous step either, we can proceed with our data as it is.</p>
+</div>
+<div id="testing-for-associations" class="section level2">
+<h2><span class="header-section-number">3.9</span> Testing for associations</h2>
+<p>Once we know our data is of good quality, it is time to perform the genome-wide association study (GWAS). In our setup we will analyze a binary trait and find markers associated with our imaginary Disease X. To accomplish this, we will test marker by marker using a statistical test (Cochran-Armitage trend test). This is implemented in GenABEL as <tt>qtscore()</tt> function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Build the model and test for association</span>
+an &lt;-<span class="st"> </span><span class="kw">qtscore</span>(pheno, genodata.qc0, <span class="dt">trait=</span><span class="st">&quot;binomial&quot;</span>)</code></pre></div>
+<p>Now the results of all the tests are stored in the “an” object. We can plot per-marker p-values using a Manhattan plot:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Plot results</span>
+<span class="kw">plot</span>(an, <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;olivedrab&quot;</span>,<span class="st">&quot;slateblue&quot;</span>), <span class="dt">cex=</span>.<span class="dv">5</span>, <span class="dt">main=</span><span class="st">&quot;Manhattan plot&quot;</span>)</code></pre></div>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>So it appears we have an association on chromosome 3, but before we start to celebrate let’s look at bit closer at the genomic inflation factor, <span class="math inline">\(\lambda\)</span>, first. If we have a lot of cryptic relatedness, or population stratification issues in our data, as investigated in our QC, the genomic inflation factor will be affected. If <span class="math inline">\(\lambda\)</span> is greater than 1, it means we have more low p-values than expected. Let’s examine <span class="math inline">\(\lambda\)</span> and see how our p-values are distributed compared to the theoretical distribution. We can use a Q-Q plot to accomplish this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate lambda for results</span>
+<span class="kw">estlambda</span>(an[, <span class="st">&quot;P1df&quot;</span>], <span class="dt">plot=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>## $estimate
+## [1] 1.004447
+## 
+## $se
+## [1] 3.747573e-05</code></pre>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>So in our example <span class="math inline">\(\lambda\)</span> is quite close to 1, and we wouldn’t expect any major impact on our association results. But in cases where <span class="math inline">\(\lambda\)</span> is higher than 1, we have to correct our association analysis for this. What value of <span class="math inline">\(\lambda\)</span> is considered too high then? There is no consensus, but if the <span class="math inline">\(\lambda\)</span> values start to be higher than 1.04-1.05 you should probably correct for stratification. There are a few ways of doing this correction. The most common approach in human genetics is to include the first 10 principal components as covariates.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">an.pca &lt;-<span class="st"> </span><span class="kw">qtscore</span>(pheno<span class="op">~</span>genodata.qc0.pcs[, <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>], genodata.qc0, <span class="dt">trait=</span><span class="st">&quot;binomial&quot;</span>)
+<span class="kw">plot</span>(an.pca, <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;olivedrab&quot;</span>,<span class="st">&quot;slateblue&quot;</span>), <span class="dt">cex=</span>.<span class="dv">5</span>, <span class="dt">main=</span><span class="st">&quot;Manhattan plot&quot;</span>)
+<span class="kw">estlambda</span>(an.pca[, <span class="st">&quot;P1df&quot;</span>], <span class="dt">plot=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>## $estimate
+## [1] 0.9949179
+## 
+## $se
+## [1] 2.571614e-05</code></pre>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-22-1.png" width="672" style="display: block; margin: auto auto auto 0;" /><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-22-2.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>Looking at our Manhattan plot we see that the p-values have now been adjusted for population stratification, and <span class="math inline">\(\lambda\)</span> has dropped to just below 1.</p>
+<p>So now we have one peak at chromosome 8 that looks significant, and some other peaks that might also be of interest, but are they really statistically significant? In human genetics studies, the genome wide association p-value limit is usually agreed upon to be <i><span class="math inline">\(\sf{5e^{-8}}\)</span></i>. So let’s first summarize our top SNPs, and also add a significance line to our plot:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(an.pca, <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;olivedrab&quot;</span>,<span class="st">&quot;slateblue&quot;</span>), <span class="dt">cex=</span>.<span class="dv">5</span>, <span class="dt">main=</span><span class="st">&quot;Manhattan plot&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> <span class="op">-</span><span class="kw">log10</span>(<span class="fl">5e-8</span>), <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)
+<span class="kw">summary</span>(an.pca)</code></pre></div>
+<pre><code>## Summary for top 10 results, sorted by P1df</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Chromosome"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["Position"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Strand"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["A1"],"name":[4],"type":["fctr"],"align":["left"]},{"label":["A2"],"name":[5],"type":["fctr"],"align":["left"]},{"label":["N"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["effB"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["se_effB"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["chi2.1df"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["P1df"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["effAB"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["effBB"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["chi2.2df"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["P2df"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["Pc1df"],"name":[15],"type":["dbl"],"align":["right"]}],"data":[{"1":"3","2":"187648416","3":"u","4":"A","5":"G","6":"195","7":"0.5447234","8":"0.09069990","9":"36.06936","10":"1.904177e-09","11":"0.5854556","12":"0.2737478","13":"36.66589","14":"1.091702e-08","15":"1.904177e-09","_rn_":"rs6444131"},{"1":"3","2":"187653326","3":"u","4":"A","5":"G","6":"196","7":"0.5578366","8":"0.09366391","9":"35.47068","10":"2.589183e-09","11":"0.7384898","12":"0.2749810","13":"41.30919","14":"1.071086e-09","15":"2.589183e-09","_rn_":"rs12629868"},{"1":"3","2":"187645657","3":"u","4":"G","5":"A","6":"195","7":"0.5690037","8":"0.09947790","9":"32.71726","10":"1.065865e-08","11":"0.6018748","12":"0.3027535","13":"33.06207","14":"6.617039e-08","15":"1.065865e-08","_rn_":"rs4541401"},{"1":"18","2":"54902009","3":"u","4":"T","5":"G","6":"196","7":"0.5367787","8":"0.10624785","9":"25.52409","10":"4.368942e-07","11":"0.5197463","12":"0.3284288","13":"25.74449","14":"2.568351e-06","15":"4.368942e-07","_rn_":"rs10871764"},{"1":"20","2":"61683372","3":"u","4":"A","5":"G","6":"194","7":"0.5172832","8":"0.11011789","9":"22.06689","10":"2.633130e-06","11":"0.4801398","12":"0.3119227","13":"22.49225","14":"1.305781e-05","15":"2.633130e-06","_rn_":"rs310672"},{"1":"12","2":"103475073","3":"u","4":"G","5":"A","6":"196","7":"0.6238784","8":"0.13326570","9":"21.91610","10":"2.848349e-06","11":"0.5994096","12":"0.3976299","13":"22.02068","14":"1.652989e-05","15":"2.848349e-06","_rn_":"rs2036834"},{"1":"15","2":"29021871","3":"u","4":"T","5":"C","6":"193","7":"0.5244596","8":"0.11313778","9":"21.48863","10":"3.559324e-06","11":"0.5252018","12":"0.2695603","13":"21.49059","14":"2.154651e-05","15":"3.559324e-06","_rn_":"rs2949568"},{"1":"6","2":"88210412","3":"u","4":"G","5":"A","6":"196","7":"0.6401765","8":"0.13849531","9":"21.36630","10":"3.793812e-06","11":"0.5763905","12":"0.4173361","13":"21.96652","14":"1.698363e-05","15":"3.793812e-06","_rn_":"rs9450686"},{"1":"3","2":"187643604","3":"u","4":"A","5":"G","6":"196","7":"0.6418160","8":"0.14025256","9":"20.94110","10":"4.736233e-06","11":"0.7174252","12":"0.4001060","13":"21.85454","14":"1.796164e-05","15":"4.736233e-06","_rn_":"rs11919115"},{"1":"13","2":"77192550","3":"u","4":"A","5":"C","6":"196","7":"0.5523595","8":"0.12096763","9":"20.84997","10":"4.967011e-06","11":"0.5734829","12":"0.2409126","13":"21.05316","14":"2.681413e-05","15":"4.967011e-06","_rn_":"rs1279446"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>Congratulations! You just discovered a new loci associated with Disease X. Your next step would now be to look into any potential genes in this region, and use annotations to search for candidate markers that could be causal. Remember that just because on of the markers came out more significant than the others, it doesn’t mean that that is the causal marker. LD in the region means that the causal marker might just be in LD with the top hit. After this you would optimally set up a validation study to try to replicate the results, and possibly do functional studies.</p>
+<p>A NOTE ON CORRECTION FOR MULTIPLE TESTING:</p>
+<p>Although in human genetics studies the significance level has been agreed upon, that is not the case in many other non-human studies. A simple approach to account for multiple testing would be to use Bonferroni correction, simple dividing the significant p-value with the number of markers tested. In our data set that would be:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate the Bonferroni threshold</span>
+bonferroni &lt;-<span class="st"> </span><span class="op">-</span><span class="kw">log10</span>(<span class="fl">0.05</span><span class="op">/</span><span class="kw">nsnps</span>(genodata.qc0))
+<span class="co"># Add the line to our plot</span>
+<span class="kw">plot</span>(an.pca, <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;olivedrab&quot;</span>,<span class="st">&quot;slateblue&quot;</span>), <span class="dt">cex=</span>.<span class="dv">5</span>, <span class="dt">main=</span><span class="st">&quot;Manhattan plot&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> bonferroni, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
+<p><img src="GWAS_Workshop_files/figure-html/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto auto auto 0;" /></p>
+<p>Here we can see that the singificance line does not change that much. However, if you have imputed data with 5 million plus markers, the Bonferroni correction would be much too conservative. The best option would then be to run permutation tests, to get the right estimate of the true significance level. Permutation test is a test where we randomly shuffle phenotypic values and perform the same assocation test as for the original data. We do this several (typicalle several thousand) times and record the “best”, i.e. the lowest p-value from each run. The position of our original best p-value on the distribution of the best p-values obtained with permuation test allows us to assess the true chance of committin type-I errors. Permutation test is very easy to perform in GenABEL, but can take significant amount of time. Therefore we just show how to call it:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Perform 10,000 permutation tests</span>
+an.pca.per &lt;-<span class="st"> </span><span class="kw">qtscore</span>(pheno<span class="op">~</span>genodata.qc0.pcs[, <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>], genodata.qc0, <span class="dt">trait=</span><span class="st">&quot;binomial&quot;</span>, <span class="dt">times =</span> <span class="dv">10000</span>)</code></pre></div>
+<p>THANK YOU AND GOOD LUCK WITH YOUR FUTURE GWAS STUDIES</p>
+</div>
+</div>
+<div id="session-info" class="section level1">
+<h1><span class="header-section-number">4</span> Session Info</h1>
+<ul>
+<li>This document has been created in RStudio using R Markdown and related packages.</li>
+<li>For R Markdown, see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a></li>
+<li>For details about the OS, packages and versions, see detailed information below:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sessionInfo</span>()</code></pre></div>
+<pre><code>## R version 3.5.0 (2018-04-23)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows &gt;= 8 x64 (build 9200)
+## 
+## Matrix products: default
+## 
+## locale:
+## [1] LC_COLLATE=English_United Kingdom.1252 
+## [2] LC_CTYPE=English_United Kingdom.1252   
+## [3] LC_MONETARY=English_United Kingdom.1252
+## [4] LC_NUMERIC=C                           
+## [5] LC_TIME=English_United Kingdom.1252    
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] DT_0.4             GenABEL_1.8-0      GenABEL.data_1.0.0
+##  [4] MASS_7.3-49        forcats_0.3.0      stringr_1.3.1     
+##  [7] dplyr_0.7.5        purrr_0.2.4        readr_1.1.1       
+## [10] tidyr_0.8.1        tibble_1.4.2       ggplot2_2.2.1     
+## [13] tidyverse_1.2.1    captioner_2.2.3    bookdown_0.7      
+## [16] knitr_1.20        
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.17     lubridate_1.7.4  lattice_0.20-35  assertthat_0.2.0
+##  [5] rprojroot_1.3-2  digest_0.6.15    psych_1.8.4      mime_0.5        
+##  [9] R6_2.2.2         cellranger_1.1.0 plyr_1.8.4       backports_1.1.2 
+## [13] evaluate_0.10.1  httr_1.3.1       pillar_1.2.2     rlang_0.2.0     
+## [17] lazyeval_0.2.1   readxl_1.1.0     rstudioapi_0.7   rmarkdown_1.9   
+## [21] foreign_0.8-70   htmlwidgets_1.2  munsell_0.4.3    shiny_1.1.0     
+## [25] broom_0.4.4      compiler_3.5.0   httpuv_1.4.3     modelr_0.1.2    
+## [29] xfun_0.1         pkgconfig_2.0.1  mnormt_1.5-5     htmltools_0.3.6 
+## [33] tidyselect_0.2.4 crayon_1.3.4     later_0.7.2      grid_3.5.0      
+## [37] xtable_1.8-2     nlme_3.1-137     jsonlite_1.5     gtable_0.2.0    
+## [41] magrittr_1.5     scales_0.5.0     cli_1.0.0        stringi_1.1.7   
+## [45] reshape2_1.4.3   promises_1.0.1   bindrcpp_0.2.2   xml2_1.2.0      
+## [49] tools_3.5.0      Cairo_1.5-9      glue_1.2.0       hms_0.4.2       
+## [53] crosstalk_1.0.0  parallel_3.5.0   yaml_2.1.19      colorspace_1.3-2
+## [57] rvest_0.3.2      bindr_0.1.1      haven_1.1.1</code></pre>
+<p style="text-align: left; font-size: small;">
+Page built on: <i class="fa fa-calendar" aria-hidden="true"></i> 24-May-2018 at <i class="fa fa-clock-o" aria-hidden="true"></i> 15:43:08.
+</p>
+<hr/>
+<div style="padding-bottom: 1.5em">
+<p><span style="float:left; vertical-align:middle"> <b>2018</b> | <a href="https://www.scilifelab.se/">SciLifeLab</a> &gt; <a href="https://nbis.se/">NBIS</a> &gt; <a href="https://nbisweden.github.io/workshop-RaukR-1806/">RaukR</a> </span> <span style="float:right; vertical-align:middle"> <span class="footericon" style="padding-right:4px; padding-left:4px"> <a href="https://nbisweden.github.io/workshop-RaukR-1806/"><img src="assets/icons8-globe-26.png" alt="website" border="0" style="height:15px"></a> </span> <span class="footericon" style="padding-right:4px; padding-left:4px"> <a href="https://twitter.com/hashtag/RaukR?src=hash"><img src="assets/icons8-twitter-26.png" alt="twitter" border="0" style="height:15px"></a> </span> </span></p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
